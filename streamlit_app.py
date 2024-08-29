@@ -6,7 +6,8 @@ import openai
 def validate_api_key(key):
     try:
         openai.api_key = key
-        openai.Engine.list()  # Test the key by making a simple request
+        # Make a test API call to validate the key
+        openai.Model.list()  # This lists the available models as a simple test
         return True
     except Exception as e:
         st.error(f"Invalid API key: {e}")
