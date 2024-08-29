@@ -1,17 +1,5 @@
 import streamlit as st
-from openai import OpenAI
 import openai
-
-# Function to validate the API key
-def validate_api_key(key):
-    try:
-        openai.api_key = key
-        # Make a test API call to validate the key
-        openai.Model.list()  # This lists the available models as a simple test
-        return True
-    except Exception as e:
-        st.error(f"Invalid API key: {e}")
-        return False
 
 # Show title and description
 st.title("📄 Document question answering agent")
@@ -23,14 +11,17 @@ st.write(
 # Ask user for their OpenAI API key via `st.text_input`
 openai_api_key = st.text_input("OpenAI API Key", type="password")
 
-# Validate the key immediately
 if openai_api_key:
-    if validate_api_key(openai_api_key):
+    try:
+        openai.api_key = openai_api_key
+        # Test the key by making a minimal request
+        openai.ChatCompletion.create(
+            model="gpt-3.5-turbo",
+            messages=[{"role": "system", "content": "ping"}],
+            max_tokens=1
+        )
         st.success("API key is valid!")
         
-        # Create an OpenAI client
-        client = OpenAI(api_key=openai_api_key)
-
         # Let the user upload a file via `st.file_uploader`
         uploaded_file = st.file_uploader(
             "Upload a document (.txt or .md)", type=("txt", "md")
@@ -44,7 +35,6 @@ if openai_api_key:
         )
 
         if uploaded_file and question:
-
             # Process the uploaded file and question
             document = uploaded_file.read().decode()
             messages = [
@@ -55,15 +45,16 @@ if openai_api_key:
             ]
 
             # Generate an answer using the OpenAI API
-            stream = client.chat.completions.create(
-                model="gpt-4o-mini",
+            stream = openai.ChatCompletion.create(
+                model="gpt-4",
                 messages=messages,
                 stream=True,
             )
 
             # Stream the response to the app using `st.write_stream`
             st.write_stream(stream)
-    else:
-        st.stop()  # Stop the app if the key is invalid
+    except Exception as e:
+        st.error(f"Invalid API key: {e}")
+        st.stop()
 else:
     st.info("Please add your OpenAI API key to continue.", icon="🗝️")
