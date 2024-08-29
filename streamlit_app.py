@@ -17,9 +17,9 @@ openai_api_key = st.text_input("OpenAI API Key", type="password")
 def validate_api_key():
     if openai_api_key:
         try:
-            openai.api_key = openai_api_key
+            OpenAI.api_key = openai_api_key
             # Test the key by making a simple request
-            openai.Engine.list()
+            OpenAI.Engine.list()
             st.success("API key is valid!")
             st.session_state["api_key_valid"] = True
         except Exception as e:
