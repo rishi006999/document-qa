@@ -16,9 +16,14 @@ def validate_api_key(api_key):
     try:
         client = OpenAI(api_key=api_key)
         # Attempt a simple API call to check if the key is valid
+        # Using a method compatible with openai>=1.0.0
         client.models.list()
         return True
-    except APIError:
+    except APIError as e:
+        st.error(f"API Error: {str(e)}")
+        return False
+    except Exception as e:
+        st.error(f"An error occurred: {str(e)}")
         return False
 
 # Ask user for their OpenAI API key via `st.text_input`.
