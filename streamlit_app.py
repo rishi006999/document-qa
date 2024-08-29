@@ -1,6 +1,20 @@
 import streamlit as st
 from openai import OpenAI
 
+def validate_api_key():
+    if openai_api_key:
+        try:
+            openai.api_key = openai_api_key
+            # Test the key by making a simple request
+            openai.Engine.list()
+            st.success("API key is valid!")
+            st.session_state["api_key_valid"] = True
+        except Exception as e:
+            st.error(f"Invalid API key: {e}")
+            st.session_state["api_key_valid"] = False
+    else:
+        st.error("Please enter your OpenAI API key.")
+
 # Show title and description.
 st.title("📄 Document question answering agent")
 st.write(
@@ -12,11 +26,14 @@ st.write(
 # Alternatively, you can store the API key in `./.streamlit/secrets.toml` and access it
 # via `st.secrets`, see https://docs.streamlit.io/develop/concepts/connections/secrets-management
 openai_api_key = st.text_input("OpenAI API Key", type="password")
+
+
 if not openai_api_key:
     st.info("Please add your OpenAI API key to continue.", icon="🗝️")
 else:
 
     # Create an OpenAI client.
+    
     client = OpenAI(api_key=openai_api_key)
 
     # Let the user upload a file via `st.file_uploader`.
@@ -44,7 +61,7 @@ else:
 
         # Generate an answer using the OpenAI API.
         stream = client.chat.completions.create(
-            model="gpt-3.5-turbo",
+            model="gpt-4o-mini",
             messages=messages,
             stream=True,
         )
